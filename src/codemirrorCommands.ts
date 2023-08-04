@@ -501,12 +501,12 @@ export class VimCellManager extends VimEditorManager {
       Vim.mapCommand(
         'gk',
         'motion',
-        'moveByDispalayLinesOrCell',
+        'moveByDisplayLinesOrCell',
         { forward: false, linewise: false },
         { context: 'normal' }
       );
       Vim.mapCommand(
-        'j',
+        'gj',
         'motion',
         'moveByDisplayLinesOrCell',
         { forward: true, linewise: false },
