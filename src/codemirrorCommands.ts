@@ -301,6 +301,112 @@ export class VimCellManager extends VimEditorManager {
       }
       // JUPYTER PATCH END
 
+    // Define a function to use as Vim motion
+    // This replaces the codemirror moveByLines function to
+    // for jumping between notebook cells.
+    const moveByDisplayLinesOrCell = (
+      cm: IVimCodeMirror,
+      head: any,
+      motionArgs: any,
+      vim: any
+    ): any => {
+      const cur = head;
+      const currentCell = activeCell;
+      // TODO: these references will be undefined
+      // Depending what our last motion was, we may want to do different
+      // things. If our last motion was moving vertically, we want to
+      // preserve the HPos from our last horizontal move.  If our last motion
+      // was going to the end of a line, moving vertically we should go to
+      // the end of the line, etc.
+      switch (vim?.lastMotion) {
+        case cm.moveByLines:
+        case cm.moveByDisplayLines:
+        case cm.moveByScroll:
+        case cm.moveToColumn:
+        case cm.moveToEol:
+        // JUPYTER PATCH: add our custom method to the motion cases
+        // eslint-disable-next-line no-fallthrough
+        case moveByLinesOrCell:
+          break;
+        default:
+          vim.lastHSPos = cm.charCoords(cur,'div').left;
+      }
+      const repeat = motionArgs.repeat;
+      var res = cm.findPosV(
+        cur,
+        motionArgs.forward ? repeat : -repeat,
+        'line',
+        vim.lastHSPos
+      );
+      if (res.hitSide) {
+        if (motionArgs.forward) {
+          const lastCharCoords = cm.charCoords(res, 'div');
+          const goalCoords = { top: lastCharCoords.top + 8, left: vim.lastHSPos };
+          var res = cm.coordsChar(goalCoords, 'div');
+        } else {
+          var resCoords = cm.charCoords(new Pos(cm.firstLine(), 0), 'div');
+          resCoords.left = vim.lastHSPs;
+          res = cm.coordsChar(resCoords, 'div');
+        }
+      }
+
+
+      // JUPYTER PATCH BEGIN
+      // here we insert the jumps to the next cells
+
+      if (line < first || line > last) {
+        // var currentCell = ns.notebook.get_selected_cell();
+        // var currentCell = tracker.activeCell;
+        // var key = '';
+        // `currentCell !== null should not be needed since `activeCell`
+        // is already check against null (row 61). Added to avoid warning.
+        if (currentCell !== null && currentCell.model.type === 'markdown') {
+          if (!motionArgs.handleArrow) {
+            // markdown cells tends to improperly handle arrow keys movement,
+            //  on the way up the cell is rendered, but down movement is ignored
+            //  when use arrows the cell will remain unrendered (need to shift+enter)
+            //  However, this is the same as Jupyter default behaviour
+            (currentCell as MarkdownCell).rendered = true;
+          }
+          // currentCell.execute();
+        }
+        if (motionArgs.forward) {
+          // ns.notebook.select_next();
+          if (!motionArgs.handleArrow) {
+            this._commands.execute('notebook:move-cursor-down');
+          } else {
+            // This block preventing double cell hop when you use arrow keys for navigation
+            //    also arrow key navigation works properly when current cursor position
+            //    at the beginning of line for up move, and at the end for down move
+            const cursor = cm.getCursor();
+            // CM6 is 1-based
+            const last_char = cm.cm6.state.doc.line(last + 1).length;
+            if (cursor.line !== last || cursor.ch !== last_char) {
+              cm.setCursor(last, last_char);
+              this._commands.execute('notebook:move-cursor-down');
+            }
+          }
+          // key = 'j';
+        } else {
+          // ns.notebook.select_prev();
+          if (!motionArgs.handleArrow) {
+            this._commands.execute('notebook:move-cursor-up');
+          } else {
+            // This block preventing double cell hop when you use arrow keys for navigation
+            //    also arrow key navigation works properly when current cursor position
+            //    at the beginning of line for up move, and at the end for down move
+            const cursor = cm.getCursor();
+            if (cursor.line !== 0 || cursor.ch !== 0) {
+              cm.setCursor(0, 0);
+              this._commands.execute('notebook:move-cursor-up');
+            }
+          }
+          // key = 'k';
+        }
+        return;
+      }
+      // JUPYTER PATCH END
+
       // function taken from https://github.com/codemirror/CodeMirror/blob/9d0f9d19de70abe817e8b8e161034fbd3f907030/keymap/vim.js#L3328
       function findFirstNonWhiteSpaceCharacter(text: any): number {
         if (!text) {
@@ -340,14 +446,14 @@ export class VimCellManager extends VimEditorManager {
     Vim.mapCommand(
       'k',
       'motion',
-      'moveByLinesOrCell',
+      'moveByDisplayLinesOrCell',
       { forward: false, linewise: true },
       { context: 'normal' }
     );
     Vim.mapCommand(
       'j',
       'motion',
-      'moveByLinesOrCell',
+      'moveByDisplayLinesOrCell',
       { forward: true, linewise: true },
       { context: 'normal' }
     );
