@@ -345,7 +345,7 @@ export class VimCellManager extends VimEditorManager {
           var res = cm.coordsChar(goalCoords, 'div');
         } else {
           var resCoords = cm.charCoords(new Pos(cm.firstLine(), 0), 'div');
-          resCoords.left = vim.lastHSPs;
+          resCoords.left = vim.lastHSPos;
           res = cm.coordsChar(resCoords, 'div');
         }
       }
