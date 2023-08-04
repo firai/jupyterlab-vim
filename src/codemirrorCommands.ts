@@ -338,17 +338,20 @@ export class VimCellManager extends VimEditorManager {
         'line',
         vim.lastHSPos
       );
+      /*
       if (res.hitSide) {
         if (motionArgs.forward) {
           const lastCharCoords = cm.charCoords(res, 'div');
           const goalCoords = { top: lastCharCoords.top + 8, left: vim.lastHSPos };
-          var res = cm.coordsChar(goalCoords, 'div');
+          const res = cm.coordsChar(goalCoords, 'div');
         } else {
           var resCoords = cm.charCoords(new Pos(cm.firstLine(), 0), 'div');
           resCoords.left = vim.lastHSPos;
           res = cm.coordsChar(resCoords, 'div');
         }
       }
+      */
+      vim.lastHPos = res.ch;
 
 
       // JUPYTER PATCH BEGIN
