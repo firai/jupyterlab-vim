@@ -363,22 +363,6 @@ export class VimCellManager extends VimEditorManager {
         motionArgs.forward ? repeat : -repeat,
         'line',
         vim.lastHSPos
-      );
-      /*
-      if (res.hitSide) {
-        if (motionArgs.forward) {
-          const lastCharCoords = cm.charCoords(res, 'div');
-          const goalCoords = { top: lastCharCoords.top + 8, left: vim.lastHSPos };
-          const res = cm.coordsChar(goalCoords, 'div');
-        } else {
-          var resCoords = cm.charCoords(new Pos(cm.firstLine(), 0), 'div');
-          resCoords.left = vim.lastHSPos;
-          res = cm.coordsChar(resCoords, 'div');
-        }
-      }
-      */
-
-
       // JUPYTER PATCH BEGIN
       // here we insert the jumps to the next cells
 
