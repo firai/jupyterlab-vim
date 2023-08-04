@@ -301,8 +301,30 @@ export class VimCellManager extends VimEditorManager {
       }
       // JUPYTER PATCH END
 
+      // function taken from https://github.com/codemirror/CodeMirror/blob/9d0f9d19de70abe817e8b8e161034fbd3f907030/keymap/vim.js#L3328
+      function findFirstNonWhiteSpaceCharacter(text: any): number {
+        if (!text) {
+          return 0;
+        }
+        const firstNonWS = text.search(/\S/);
+        return firstNonWS === -1 ? text.length : firstNonWS;
+      }
+
+      if (motionArgs.toFirstChar) {
+        endCh = findFirstNonWhiteSpaceCharacter(cm.getLine(line));
+        vim.lastHPos = endCh;
+      }
+
+      vim.lastHSPos = cm.charCoords(
+        new CodeMirror.Pos(line, endCh),
+        'div'
+      ).left;
+      return new CodeMirror.Pos(line, endCh);
+    };
+    Vim.defineMotion('moveByLinesOrCell', moveByLinesOrCell);
+
     // Define a function to use as Vim motion
-    // This replaces the codemirror moveByLines function to
+    // This replaces the codemirror moveByDisplayLines function to
     // for jumping between notebook cells.
     const moveByDisplayLinesOrCell = (
       cm: IVimCodeMirror,
@@ -326,12 +348,13 @@ export class VimCellManager extends VimEditorManager {
         case cm.moveToEol:
         // JUPYTER PATCH: add our custom method to the motion cases
         // eslint-disable-next-line no-fallthrough
-        case moveByLinesOrCell:
+        case moveByDisplayLinesOrCell:
           break;
         default:
           vim.lastHSPos = cm.charCoords(cur,'div').left;
       }
       const repeat = motionArgs.repeat;
+      const last = cm.lastLine();
       var res = cm.findPosV(
         cur,
         motionArgs.forward ? repeat : -repeat,
@@ -351,13 +374,12 @@ export class VimCellManager extends VimEditorManager {
         }
       }
       */
-      vim.lastHPos = res.ch;
 
 
       // JUPYTER PATCH BEGIN
       // here we insert the jumps to the next cells
 
-      if (line < first || line > last) {
+      if (res.hitSide) {
         // var currentCell = ns.notebook.get_selected_cell();
         // var currentCell = tracker.activeCell;
         // var key = '';
@@ -410,27 +432,9 @@ export class VimCellManager extends VimEditorManager {
       }
       // JUPYTER PATCH END
 
-      // function taken from https://github.com/codemirror/CodeMirror/blob/9d0f9d19de70abe817e8b8e161034fbd3f907030/keymap/vim.js#L3328
-      function findFirstNonWhiteSpaceCharacter(text: any): number {
-        if (!text) {
-          return 0;
-        }
-        const firstNonWS = text.search(/\S/);
-        return firstNonWS === -1 ? text.length : firstNonWS;
-      }
-
-      if (motionArgs.toFirstChar) {
-        endCh = findFirstNonWhiteSpaceCharacter(cm.getLine(line));
-        vim.lastHPos = endCh;
-      }
-
-      vim.lastHSPos = cm.charCoords(
-        new CodeMirror.Pos(line, endCh),
-        'div'
-      ).left;
-      return new CodeMirror.Pos(line, endCh);
+      vim.lastHPos = res.ch;
+      return res;
     };
-    Vim.defineMotion('moveByLinesOrCell', moveByLinesOrCell);
     Vim.defineMotion('moveByDisplayLinesOrCell', moveByDisplayLinesOrCell);
 
     Vim.mapCommand(
