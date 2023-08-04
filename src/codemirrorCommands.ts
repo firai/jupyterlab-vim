@@ -363,6 +363,8 @@ export class VimCellManager extends VimEditorManager {
         motionArgs.forward ? repeat : -repeat,
         'line',
         vim.lastHSPos
+      );
+
       // JUPYTER PATCH BEGIN
       // here we insert the jumps to the next cells
 
