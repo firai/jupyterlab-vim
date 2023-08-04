@@ -173,6 +173,7 @@ async function activateCellVim(
 
     enabled = settings.get('enabled').composite === true;
     enabledInEditors = settings.get('enabledInEditors').composite === true;
+	gjMoveByDisplayLines = settings.get('gjMoveByDisplayLines').composite == true;
 
     const cmdModeKeys = settings.get('cmdModeKeys')
       .composite as PartialJSONObject;

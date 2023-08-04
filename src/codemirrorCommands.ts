@@ -437,34 +437,65 @@ export class VimCellManager extends VimEditorManager {
     };
     Vim.defineMotion('moveByDisplayLinesOrCell', moveByDisplayLinesOrCell);
 
-    Vim.mapCommand(
-      '<Up>',
-      'motion',
-      'moveByLinesOrCell',
-      { forward: false, linewise: true, handleArrow: true },
-      { context: 'normal' }
-    );
-    Vim.mapCommand(
-      '<Down>',
-      'motion',
-      'moveByLinesOrCell',
-      { forward: true, linewise: true, handleArrow: true },
-      { context: 'normal' }
-    );
-    Vim.mapCommand(
-      'k',
-      'motion',
-      'moveByDisplayLinesOrCell',
-      { forward: false, linewise: true },
-      { context: 'normal' }
-    );
-    Vim.mapCommand(
-      'j',
-      'motion',
-      'moveByDisplayLinesOrCell',
-      { forward: true, linewise: true },
-      { context: 'normal' }
-    );
+    if (this.gjMoveByDisplayLines) {
+      Vim.mapCommand(
+        '<Up>',
+        'motion',
+        'moveByDisplayLinesOrCell',
+        { forward: false, linewise: true, handleArrow: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        '<Down>',
+        'motion',
+        'moveByDisplayLinesOrCell',
+        { forward: true, linewise: true, handleArrow: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'k',
+        'motion',
+        'moveByDisplayLinesOrCell',
+        { forward: false, linewise: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'j',
+        'motion',
+        'moveByDisplayLinesOrCell',
+        { forward: true, linewise: true },
+        { context: 'normal' }
+      );
+    } else {
+      Vim.mapCommand(
+        '<Up>',
+        'motion',
+        'moveByLinesOrCell',
+        { forward: false, linewise: true, handleArrow: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        '<Down>',
+        'motion',
+        'moveByLinesOrCell',
+        { forward: true, linewise: true, handleArrow: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'k',
+        'motion',
+        'moveByLinesOrCell',
+        { forward: false, linewise: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'j',
+        'motion',
+        'moveByLinesOrCell',
+        { forward: true, linewise: true },
+        { context: 'normal' }
+      );
+    };
 
     Vim.defineAction('moveCellDown', (cm: any, actionArgs: any) => {
       this._commands.execute('notebook:move-cell-down');
