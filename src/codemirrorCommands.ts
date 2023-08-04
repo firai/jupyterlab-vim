@@ -428,6 +428,7 @@ export class VimCellManager extends VimEditorManager {
       return new CodeMirror.Pos(line, endCh);
     };
     Vim.defineMotion('moveByLinesOrCell', moveByLinesOrCell);
+    Vim.defineMotion('moveByDisplayLinesOrCell', moveByDisplayLinesOrCell);
 
     Vim.mapCommand(
       '<Up>',
