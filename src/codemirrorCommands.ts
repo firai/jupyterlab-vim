@@ -28,6 +28,7 @@ export namespace VimEditorManager {
   export interface IOptions {
     enabled: boolean;
     userKeybindings: IKeybinding[];
+    gjMoveByDisplayLines: boolean;
   }
 }
 
@@ -44,9 +45,10 @@ interface IUndoOptions {
 }
 
 export class VimEditorManager {
-  constructor({ enabled, userKeybindings }: VimEditorManager.IOptions) {
+  constructor({ enabled, userKeybindings, gjMoveByDisplayLines }: VimEditorManager.IOptions) {
     this.enabled = enabled;
     this.userKeybindings = userKeybindings ?? [];
+    this.gjMoveByDisplayLines = gjMoveByDisplayLines;
   }
 
   async onActiveEditorChanged(
@@ -155,11 +157,12 @@ export class VimEditorManager {
   private _lastActiveEditor: CodeEditor.IEditor | null = null;
   public enabled: boolean;
   public userKeybindings: IKeybinding[];
+  public gjMoveByDisplayLines: boolean;
 }
 
 export class VimCellManager extends VimEditorManager {
-  constructor({ commands, enabled, userKeybindings }: VimCellManager.IOptions) {
-    super({ userKeybindings, enabled });
+  constructor({ commands, enabled, userKeybindings, gjMoveByDisplayLines }: VimCellManager.IOptions) {
+    super({ userKeybindings, enabled, gjMoveByDisplayLines });
     this._commands = commands;
   }
 
@@ -456,13 +459,27 @@ export class VimCellManager extends VimEditorManager {
         'k',
         'motion',
         'moveByDisplayLinesOrCell',
-        { forward: false, linewise: true },
+        { forward: false, linewise: false },
         { context: 'normal' }
       );
       Vim.mapCommand(
         'j',
         'motion',
         'moveByDisplayLinesOrCell',
+        { forward: true, linewise: false },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'gk',
+        'motion',
+        'moveByLinesOrCell',
+        { forward: false, linewise: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'gj',
+        'motion',
+        'moveByLinesOrCell',
         { forward: true, linewise: true },
         { context: 'normal' }
       );
@@ -493,6 +510,20 @@ export class VimCellManager extends VimEditorManager {
         'motion',
         'moveByLinesOrCell',
         { forward: true, linewise: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'gk',
+        'motion',
+        'moveByDispalayLinesOrCell',
+        { forward: false, linewise: false },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'j',
+        'motion',
+        'moveByDisplayLinesOrCell',
+        { forward: true, linewise: false },
         { context: 'normal' }
       );
     };
