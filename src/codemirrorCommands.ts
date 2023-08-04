@@ -28,7 +28,7 @@ export namespace VimEditorManager {
   export interface IOptions {
     enabled: boolean;
     userKeybindings: IKeybinding[];
-    gjMoveByDisplayLines: boolean;
+    jkMoveByDisplayLines: boolean;
   }
 }
 
@@ -45,10 +45,10 @@ interface IUndoOptions {
 }
 
 export class VimEditorManager {
-  constructor({ enabled, userKeybindings, gjMoveByDisplayLines }: VimEditorManager.IOptions) {
+  constructor({ enabled, userKeybindings, jkMoveByDisplayLines }: VimEditorManager.IOptions) {
     this.enabled = enabled;
     this.userKeybindings = userKeybindings ?? [];
-    this.gjMoveByDisplayLines = gjMoveByDisplayLines;
+    this.jkMoveByDisplayLines = jkMoveByDisplayLines;
   }
 
   async onActiveEditorChanged(
@@ -157,12 +157,12 @@ export class VimEditorManager {
   private _lastActiveEditor: CodeEditor.IEditor | null = null;
   public enabled: boolean;
   public userKeybindings: IKeybinding[];
-  public gjMoveByDisplayLines: boolean;
+  public jkMoveByDisplayLines: boolean;
 }
 
 export class VimCellManager extends VimEditorManager {
-  constructor({ commands, enabled, userKeybindings, gjMoveByDisplayLines }: VimCellManager.IOptions) {
-    super({ userKeybindings, enabled, gjMoveByDisplayLines });
+  constructor({ commands, enabled, userKeybindings, jkMoveByDisplayLines }: VimCellManager.IOptions) {
+    super({ userKeybindings, enabled, jkMoveByDisplayLines });
     this._commands = commands;
   }
 
@@ -426,7 +426,7 @@ export class VimCellManager extends VimEditorManager {
     };
     Vim.defineMotion('moveByDisplayLinesOrCell', moveByDisplayLinesOrCell);
 
-    if (this.gjMoveByDisplayLines) {
+    if (this.jkMoveByDisplayLines) {
       Vim.mapCommand(
         '<Up>',
         'motion',

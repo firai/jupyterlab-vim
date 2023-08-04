@@ -311,7 +311,7 @@
         }
       }
     },
-    "gjMoveByDisplayLines": {
+    "jkMoveByDisplayLines": {
       "type": "boolean",
       "title": "Remap j and k to Move By Display Lines",
       "description": "Remap j and k to move by display lines (gj and gk)",
