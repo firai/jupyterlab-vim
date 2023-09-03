@@ -260,6 +260,7 @@ export class VimCellManager extends VimEditorManager {
         if (motionArgs.forward) {
           // ns.notebook.select_next();
           if (!motionArgs.handleArrow) {
+            console.log(currentCell.model.type);
             this._commands.execute('notebook:move-cursor-down');
           } else {
             // This block preventing double cell hop when you use arrow keys for navigation
@@ -270,6 +271,7 @@ export class VimCellManager extends VimEditorManager {
             const last_char = cm.cm6.state.doc.line(last + 1).length;
             if (cursor.line !== last || cursor.ch !== last_char) {
               cm.setCursor(last, last_char);
+              console.log(currentCell.model.type);
               this._commands.execute('notebook:move-cursor-down');
             }
           }
@@ -277,6 +279,7 @@ export class VimCellManager extends VimEditorManager {
         } else {
           // ns.notebook.select_prev();
           if (!motionArgs.handleArrow) {
+            console.log(currentCell.model.type);
             this._commands.execute('notebook:move-cursor-up');
           } else {
             // This block preventing double cell hop when you use arrow keys for navigation
@@ -285,6 +288,7 @@ export class VimCellManager extends VimEditorManager {
             const cursor = cm.getCursor();
             if (cursor.line !== 0 || cursor.ch !== 0) {
               cm.setCursor(0, 0);
+              console.log(currentCell.model.type);
               this._commands.execute('notebook:move-cursor-up');
             }
           }
