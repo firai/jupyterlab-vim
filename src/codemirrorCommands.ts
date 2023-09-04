@@ -390,15 +390,15 @@ export class VimCellManager extends VimEditorManager {
             this._commands.execute('notebook:move-cursor-down');
           } else {
             // This block preventing double cell hop when you use arrow keys for navigation
-            //    also arrow key navigation works properly when current cursor position
-            //    at the beginning of line for up move, and at the end for down move
+            // also arrow key navigation works properly when current cursor position
+            // at the beginning of line for up move, and at the end for down move
             const cursor = cm.getCursor();
             // CM6 is 1-based
             const last_char = cm.cm6.state.doc.line(last + 1).length;
             if (cursor.line !== last || cursor.ch !== last_char) {
               cm.setCursor(last, last_char);
-              this._commands.execute('notebook:move-cursor-down');
             }
+            this._commands.execute('notebook:move-cursor-down');
           }
           // key = 'j';
         } else {
@@ -407,13 +407,13 @@ export class VimCellManager extends VimEditorManager {
             this._commands.execute('notebook:move-cursor-up');
           } else {
             // This block preventing double cell hop when you use arrow keys for navigation
-            //    also arrow key navigation works properly when current cursor position
-            //    at the beginning of line for up move, and at the end for down move
+            // also arrow key navigation works properly when current cursor position
+            // at the beginning of line for up move, and at the end for down move
             const cursor = cm.getCursor();
             if (cursor.line !== 0 || cursor.ch !== 0) {
               cm.setCursor(0, 0);
-              this._commands.execute('notebook:move-cursor-up');
             }
+            this._commands.execute('notebook:move-cursor-up');
           }
           // key = 'k';
         }
