@@ -153,7 +153,7 @@ async function activateCellVim(
     } else if (editorTracker.currentWidget === current) {
       editorManager.onActiveEditorChanged(editorTracker, editorTracker.currentWidget);
     } else if (notebookTracker.currentWidget === current) {
-      cellManager.onActiveCellChanged(notebookTracker.currentWidget.content.activeCell);
+      cellManager.onActiveCellChanged(notebookTracker, notebookTracker.currentWidget.content.activeCell);
     } else {
       // no-op
     }
