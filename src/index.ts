@@ -151,9 +151,9 @@ async function activateCellVim(
     if (!current) {
       // no-op
     } else if (editorTracker.currentWidget === current) {
-      editorManager.modifyEditor(editorTracker.currentWidget.content.editor);
+      editorManager.onActiveEditorChanged(editorTracker, editorTracker.currentWidget);
     } else if (notebookTracker.currentWidget === current) {
-      cellManager.modifyCell(notebookTracker.currentWidget.content.activeCell);
+      cellManager.onActiveCellChanged(notebookTracker.currentWidget.content.activeCell);
     } else {
       // no-op
     }
