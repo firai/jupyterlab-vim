@@ -45,7 +45,11 @@ interface IUndoOptions {
 }
 
 export class VimEditorManager {
-  constructor({ enabled, userKeybindings, jkMoveByDisplayLines }: VimEditorManager.IOptions) {
+  constructor({
+    enabled,
+    userKeybindings,
+    jkMoveByDisplayLines
+  }: VimEditorManager.IOptions) {
     this.enabled = enabled;
     this.userKeybindings = userKeybindings ?? [];
     this.jkMoveByDisplayLines = jkMoveByDisplayLines;
@@ -161,7 +165,12 @@ export class VimEditorManager {
 }
 
 export class VimCellManager extends VimEditorManager {
-  constructor({ commands, enabled, userKeybindings, jkMoveByDisplayLines }: VimCellManager.IOptions) {
+  constructor({
+    commands,
+    enabled,
+    userKeybindings,
+    jkMoveByDisplayLines
+  }: VimCellManager.IOptions) {
     super({ userKeybindings, enabled, jkMoveByDisplayLines });
     this._commands = commands;
   }
@@ -354,7 +363,7 @@ export class VimCellManager extends VimEditorManager {
         case moveByDisplayLinesOrCell:
           break;
         default:
-          vim.lastHSPos = cm.charCoords(cur,'div').left;
+          vim.lastHSPos = cm.charCoords(cur, 'div').left;
       }
       const repeat = motionArgs.repeat;
       const last = cm.lastLine();
@@ -512,7 +521,7 @@ export class VimCellManager extends VimEditorManager {
         { forward: true, linewise: false },
         { context: 'normal' }
       );
-    };
+    }
 
     Vim.defineAction('moveCellDown', (cm: any, actionArgs: any) => {
       this._commands.execute('notebook:move-cell-down');
