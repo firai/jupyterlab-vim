@@ -367,7 +367,7 @@ export class VimCellManager extends VimEditorManager {
       }
       const repeat = motionArgs.repeat;
       const last = cm.lastLine();
-      var res = cm.findPosV(
+      const res = cm.findPosV(
         cur,
         motionArgs.forward ? repeat : -repeat,
         'line',
