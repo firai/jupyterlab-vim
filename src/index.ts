@@ -116,12 +116,12 @@ async function activateCellVim(
     commands: app.commands,
     enabled,
     userKeybindings,
-    jkMoveByDisplayLines,
+    jkMoveByDisplayLines
   });
   const editorManager = new VimEditorManager({
     enabled: enabled && enabledInEditors,
     userKeybindings,
-    jkMoveByDisplayLines,
+    jkMoveByDisplayLines
   });
 
   let escBinding: IDisposable | null = null;
@@ -174,19 +174,19 @@ async function activateCellVim(
       await settingRegistry.get(`${PLUGIN_NAME}:plugin`, 'extraKeybindings')
     ).composite as unknown as Array<IKeybinding>;
 
-    enabled = settings.get("enabled").composite === true;
-    enabledInEditors = settings.get("enabledInEditors").composite === true;
+    enabled = settings.get('enabled').composite === true;
+    enabledInEditors = settings.get('enabledInEditors').composite === true;
     jkMoveByDisplayLines =
-      settings.get("jkMoveByDisplayLines").composite == true;
+      settings.get('jkMoveByDisplayLines').composite == true;
 
-    const cmdModeKeys = settings.get("cmdModeKeys")
+    const cmdModeKeys = settings.get('cmdModeKeys')
       .composite as PartialJSONObject;
     if (!cmdModeKeys) {
       // no-op
     } else {
-      escToCmdMode = cmdModeKeys["escToCmdMode"] as boolean;
+      escToCmdMode = cmdModeKeys['escToCmdMode'] as boolean;
       shiftEscOverrideBrowser = cmdModeKeys[
-        "shiftEscOverrideBrowser"
+        'shiftEscOverrideBrowser'
       ] as boolean;
     }
 
