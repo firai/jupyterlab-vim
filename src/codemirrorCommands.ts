@@ -28,6 +28,7 @@ export namespace VimEditorManager {
   export interface IOptions {
     enabled: boolean;
     userKeybindings: IKeybinding[];
+    jkMoveByDisplayLines: boolean;
   }
 }
 
@@ -49,9 +50,14 @@ export interface ICellContext {
 }
 
 export class VimEditorManager {
-  constructor({ enabled, userKeybindings }: VimEditorManager.IOptions) {
+  constructor({
+    enabled,
+    userKeybindings,
+    jkMoveByDisplayLines
+  }: VimEditorManager.IOptions) {
     this.enabled = enabled;
     this.userKeybindings = userKeybindings ?? [];
+    this.jkMoveByDisplayLines = jkMoveByDisplayLines;
   }
 
   async onActiveEditorChanged(
@@ -164,11 +170,17 @@ export class VimEditorManager {
   private _lastActiveEditor: CodeEditor.IEditor | null = null;
   public enabled: boolean;
   public userKeybindings: IKeybinding[];
+  public jkMoveByDisplayLines: boolean;
 }
 
 export class VimCellManager extends VimEditorManager {
-  constructor({ commands, enabled, userKeybindings }: VimCellManager.IOptions) {
-    super({ userKeybindings, enabled });
+  constructor({
+    commands,
+    enabled,
+    userKeybindings,
+    jkMoveByDisplayLines
+  }: VimCellManager.IOptions) {
+    super({ userKeybindings, enabled, jkMoveByDisplayLines });
     this._commands = commands;
   }
 
@@ -347,34 +359,193 @@ export class VimCellManager extends VimEditorManager {
     };
     Vim.defineMotion('moveByLinesOrCell', moveByLinesOrCell);
 
-    Vim.mapCommand(
-      '<Up>',
-      'motion',
-      'moveByLinesOrCell',
-      { forward: false, linewise: true, handleArrow: true },
-      { context: 'normal' }
-    );
-    Vim.mapCommand(
-      '<Down>',
-      'motion',
-      'moveByLinesOrCell',
-      { forward: true, linewise: true, handleArrow: true },
-      { context: 'normal' }
-    );
-    Vim.mapCommand(
-      'k',
-      'motion',
-      'moveByLinesOrCell',
-      { forward: false, linewise: true },
-      { context: 'normal' }
-    );
-    Vim.mapCommand(
-      'j',
-      'motion',
-      'moveByLinesOrCell',
-      { forward: true, linewise: true },
-      { context: 'normal' }
-    );
+    // Define a function to use as Vim motion
+    // This replaces the codemirror moveByDisplayLines function to
+    // for jumping between notebook cells.
+    const moveByDisplayLinesOrCell = (
+      cm: IVimCodeMirror,
+      head: any,
+      motionArgs: any,
+      vim: any
+    ): any => {
+      const cur = head;
+      const currentCell = activeCell;
+      // TODO: these references will be undefined
+      // Depending what our last motion was, we may want to do different
+      // things. If our last motion was moving vertically, we want to
+      // preserve the HPos from our last horizontal move.  If our last motion
+      // was going to the end of a line, moving vertically we should go to
+      // the end of the line, etc.
+      switch (vim?.lastMotion) {
+        case cm.moveByLines:
+        case cm.moveByDisplayLines:
+        case cm.moveByScroll:
+        case cm.moveToColumn:
+        case cm.moveToEol:
+        // JUPYTER PATCH: add our custom method to the motion cases
+        // eslint-disable-next-line no-fallthrough
+        case moveByDisplayLinesOrCell:
+          break;
+        default:
+          vim.lastHSPos = cm.charCoords(cur, 'div').left;
+      }
+      const repeat = motionArgs.repeat;
+      const last = cm.lastLine();
+      const res = cm.findPosV(
+        cur,
+        motionArgs.forward ? repeat : -repeat,
+        'line',
+        vim.lastHSPos
+      );
+
+      // JUPYTER PATCH BEGIN
+      // here we insert the jumps to the next cells
+
+      if (res.hitSide) {
+        // var currentCell = ns.notebook.get_selected_cell();
+        // var currentCell = tracker.activeCell;
+        // var key = '';
+        // `currentCell !== null should not be needed since `activeCell`
+        // is already check against null (row 61). Added to avoid warning.
+        if (currentCell !== null && currentCell.model.type === 'markdown') {
+          if (!motionArgs.handleArrow) {
+            // markdown cells tends to improperly handle arrow keys movement,
+            //  on the way up the cell is rendered, but down movement is ignored
+            //  when use arrows the cell will remain unrendered (need to shift+enter)
+            //  However, this is the same as Jupyter default behaviour
+            (currentCell as MarkdownCell).rendered = true;
+          }
+          // currentCell.execute();
+        }
+        if (motionArgs.forward) {
+          // ns.notebook.select_next();
+          if (!motionArgs.handleArrow) {
+            this._commands.execute('notebook:move-cursor-down');
+          } else {
+            // This block preventing double cell hop when you use arrow keys for navigation
+            // also arrow key navigation works properly when current cursor position
+            // at the beginning of line for up move, and at the end for down move
+            const cursor = cm.getCursor();
+            // CM6 is 1-based
+            const last_char = cm.cm6.state.doc.line(last + 1).length;
+            if (cursor.line !== last || cursor.ch !== last_char) {
+              cm.setCursor(last, last_char);
+            }
+            this._commands.execute('notebook:move-cursor-down');
+          }
+          // key = 'j';
+        } else {
+          // ns.notebook.select_prev();
+          if (!motionArgs.handleArrow) {
+            this._commands.execute('notebook:move-cursor-up');
+          } else {
+            // This block preventing double cell hop when you use arrow keys for navigation
+            // also arrow key navigation works properly when current cursor position
+            // at the beginning of line for up move, and at the end for down move
+            const cursor = cm.getCursor();
+            if (cursor.line !== 0 || cursor.ch !== 0) {
+              cm.setCursor(0, 0);
+            }
+            this._commands.execute('notebook:move-cursor-up');
+          }
+          // key = 'k';
+        }
+        return;
+      }
+      // JUPYTER PATCH END
+
+      vim.lastHPos = res.ch;
+      return res;
+    };
+    Vim.defineMotion('moveByDisplayLinesOrCell', moveByDisplayLinesOrCell);
+
+    if (this.jkMoveByDisplayLines) {
+      Vim.mapCommand(
+        '<Up>',
+        'motion',
+        'moveByDisplayLinesOrCell',
+        { forward: false, linewise: true, handleArrow: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        '<Down>',
+        'motion',
+        'moveByDisplayLinesOrCell',
+        { forward: true, linewise: true, handleArrow: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'k',
+        'motion',
+        'moveByDisplayLinesOrCell',
+        { forward: false, linewise: false },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'j',
+        'motion',
+        'moveByDisplayLinesOrCell',
+        { forward: true, linewise: false },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'gk',
+        'motion',
+        'moveByLinesOrCell',
+        { forward: false, linewise: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'gj',
+        'motion',
+        'moveByLinesOrCell',
+        { forward: true, linewise: true },
+        { context: 'normal' }
+      );
+    } else {
+      Vim.mapCommand(
+        '<Up>',
+        'motion',
+        'moveByLinesOrCell',
+        { forward: false, linewise: true, handleArrow: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        '<Down>',
+        'motion',
+        'moveByLinesOrCell',
+        { forward: true, linewise: true, handleArrow: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'k',
+        'motion',
+        'moveByLinesOrCell',
+        { forward: false, linewise: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'j',
+        'motion',
+        'moveByLinesOrCell',
+        { forward: true, linewise: true },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'gk',
+        'motion',
+        'moveByDisplayLinesOrCell',
+        { forward: false, linewise: false },
+        { context: 'normal' }
+      );
+      Vim.mapCommand(
+        'gj',
+        'motion',
+        'moveByDisplayLinesOrCell',
+        { forward: true, linewise: false },
+        { context: 'normal' }
+      );
+    }
 
     Vim.defineAction('moveCellDown', (cm: any, actionArgs: any) => {
       this._commands.execute('notebook:move-cell-down');
