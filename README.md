@@ -60,29 +60,28 @@ Shortcuts that this extension introduces:
 
 | Shortcut       | Action                    |
 | -------------- | ------------------------- |
-| -              | Split Cell at Cursor      |
-| Ctrl-O, -      | Split Cell at Cursor      |
-| Ctrl-Shift-J   | Extend Marked Cells Below |
-| Ctrl-Shift-K   | Extend Marked Cells Above |
-| Ctrl-J         | Select Cell Below         |
-| Ctrl-K         | Select Cell Above         |
-| Ctrl-O, G      | Select First Cell         |
-| Ctrl-O, Ctrl-G | Select Last Cell          |
-| Ctrl-O, O      | Insert Cell Below         |
-| Ctrl-O, Ctrl-O | Insert Cell Above         |
-| Ctrl-O, D      | Delete (Cut) Cell         |
-| Ctrl-O, Y      | Yank (Copy) Cell          |
-| Ctrl-O, P      | Paste Cell Below          |
-| Ctrl-E         | Move Cell Down            |
-| Ctrl-Y         | Move Cell Up              |
-| Ctrl-O, U      | Undo Cell Action          |
-| Ctrl-O, Z, Z   | Center Cell               |
-| Ctrl-G         | Show Tooltip              |
-| Cmd/Ctrl-1     | Change to Code Cell       |
-| Cmd/Ctrl-2     | Change to Markdown Cell   |
-| Cmd/Ctrl-3     | Change to Raw Cell        |
-| Shift-Esc      | Exit to Command Mode      |
-| Esc or Ctrl-\[ | Exit Current Mode         |
+| - *or*<br />Ctrl-O, -  | Split Cell at Cursor      |
+| Ctrl-Shift-J           | Extend Marked Cells Below |
+| Ctrl-Shift-K           | Extend Marked Cells Above |
+| Ctrl-J                 | Select Cell Below         |
+| Ctrl-K                 | Select Cell Above         |
+| Ctrl-O, G              | Select First Cell         |
+| Ctrl-O, Ctrl-G         | Select Last Cell          |
+| Ctrl-O, O              | Insert Cell Below         |
+| Ctrl-O, Ctrl-O         | Insert Cell Above         |
+| Ctrl-O, D              | Delete (Cut) Cell         |
+| Ctrl-O, Y              | Yank (Copy) Cell          |
+| Ctrl-O, P              | Paste Cell Below          |
+| Ctrl-E                 | Move Cell Down            |
+| Ctrl-Y                 | Move Cell Up              |
+| Ctrl-O, U              | Undo Cell Action          |
+| Ctrl-O, Z, Z           | Center Cell               |
+| Ctrl-G                 | Show Tooltip              |
+| Cmd/Ctrl-1             | Change to Code Cell       |
+| Cmd/Ctrl-2             | Change to Markdown Cell   |
+| Cmd/Ctrl-3             | Change to Raw Cell        |
+| Shift-Esc              | Exit to Command Mode      |
+| Esc *or*<br /> Ctrl-\[ | Exit Current Mode         |
 
 ### Jupyter Command mode bindings
 
