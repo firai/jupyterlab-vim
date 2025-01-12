@@ -109,7 +109,7 @@ Shortcuts that this extension introduces:
 
 - From Command mode:
   - To enter Normal mode from Command mode, press <kbd>Enter</kbd>.
-  - The extension blocks <kbd>Shift</kbd>+<kbd>Esc</kbd> from invoking browser commands, such as the browser task manager, by default. To disable the blocking behavior in Command mode, go to Settings menu → Settings Editor → Notebook Vim, and disable the "Override `Shift-Esc` browser shortcut in Jupyter Command mode" option.
+  - By default, the extension blocks <kbd>Shift</kbd>+<kbd>Esc</kbd> from invoking browser commands, such as the browser task manager. To disable the blocking behavior in Command mode, go to Settings menu → Settings Editor → Notebook Vim, and disable the "Override `Shift-Esc` browser shortcut in Jupyter Command mode" option.
 - From Normal mode:
   - To leave Normal mode to Command mode, several options are available:
     - <kbd>Shift</kbd>+<kbd>Esc</kbd>
