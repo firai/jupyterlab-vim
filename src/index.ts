@@ -32,6 +32,7 @@ let enabled = false;
 let enabledInEditors = true;
 let escToCmdMode = true;
 let shiftEscOverrideBrowser = true;
+let jkMoveByDisplayLines = false;
 
 /**
  * Initialization data for the jupyterlab_vim extension.
@@ -120,11 +121,13 @@ async function activateCellVim(
   const cellManager = new VimCellManager({
     commands: app.commands,
     enabled,
-    userKeybindings
+    userKeybindings,
+    jkMoveByDisplayLines
   });
   const editorManager = new VimEditorManager({
     enabled: enabled && enabledInEditors,
-    userKeybindings
+    userKeybindings,
+    jkMoveByDisplayLines
   });
 
   let escBinding: IDisposable | null = null;
@@ -186,6 +189,8 @@ async function activateCellVim(
 
     enabled = settings.get('enabled').composite === true;
     enabledInEditors = settings.get('enabledInEditors').composite === true;
+    jkMoveByDisplayLines =
+      settings.get('jkMoveByDisplayLines').composite === true;
 
     const cmdModeKeys = settings.get('cmdModeKeys')
       .composite as PartialJSONObject;
@@ -202,9 +207,11 @@ async function activateCellVim(
 
     cellManager.enabled = enabled;
     cellManager.userKeybindings = userKeybindings;
+    cellManager.jkMoveByDisplayLines = jkMoveByDisplayLines;
 
     editorManager.enabled = enabled && enabledInEditors;
     editorManager.userKeybindings = userKeybindings;
+    editorManager.jkMoveByDisplayLines = jkMoveByDisplayLines;
 
     if (enabled) {
       escBinding?.dispose();
